@@ -1,0 +1,291 @@
+import React, { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, Shuffle, RotateCcw, Trophy } from 'lucide-react';
+
+const divisionProblems = [
+  // Easy Division (2-5 tables)
+  { question: "10 ÷ 2", answer: "5", difficulty: "Easy" },
+  { question: "12 ÷ 2", answer: "6", difficulty: "Easy" },
+  { question: "14 ÷ 2", answer: "7", difficulty: "Easy" },
+  { question: "16 ÷ 2", answer: "8", difficulty: "Easy" },
+  { question: "18 ÷ 2", answer: "9", difficulty: "Easy" },
+  { question: "20 ÷ 2", answer: "10", difficulty: "Easy" },
+  
+  { question: "15 ÷ 3", answer: "5", difficulty: "Easy" },
+  { question: "18 ÷ 3", answer: "6", difficulty: "Easy" },
+  { question: "21 ÷ 3", answer: "7", difficulty: "Easy" },
+  { question: "24 ÷ 3", answer: "8", difficulty: "Easy" },
+  { question: "27 ÷ 3", answer: "9", difficulty: "Easy" },
+  { question: "30 ÷ 3", answer: "10", difficulty: "Easy" },
+  
+  { question: "20 ÷ 4", answer: "5", difficulty: "Easy" },
+  { question: "24 ÷ 4", answer: "6", difficulty: "Easy" },
+  { question: "28 ÷ 4", answer: "7", difficulty: "Easy" },
+  { question: "32 ÷ 4", answer: "8", difficulty: "Easy" },
+  { question: "36 ÷ 4", answer: "9", difficulty: "Easy" },
+  { question: "40 ÷ 4", answer: "10", difficulty: "Easy" },
+  
+  { question: "25 ÷ 5", answer: "5", difficulty: "Easy" },
+  { question: "30 ÷ 5", answer: "6", difficulty: "Easy" },
+  { question: "35 ÷ 5", answer: "7", difficulty: "Easy" },
+  { question: "40 ÷ 5", answer: "8", difficulty: "Easy" },
+  { question: "45 ÷ 5", answer: "9", difficulty: "Easy" },
+  { question: "50 ÷ 5", answer: "10", difficulty: "Easy" },
+  
+  // Medium Division (6-9 tables)
+  { question: "36 ÷ 6", answer: "6", difficulty: "Medium" },
+  { question: "42 ÷ 6", answer: "7", difficulty: "Medium" },
+  { question: "48 ÷ 6", answer: "8", difficulty: "Medium" },
+  { question: "54 ÷ 6", answer: "9", difficulty: "Medium" },
+  { question: "60 ÷ 6", answer: "10", difficulty: "Medium" },
+  
+  { question: "49 ÷ 7", answer: "7", difficulty: "Medium" },
+  { question: "56 ÷ 7", answer: "8", difficulty: "Medium" },
+  { question: "63 ÷ 7", answer: "9", difficulty: "Medium" },
+  { question: "70 ÷ 7", answer: "10", difficulty: "Medium" },
+  
+  { question: "64 ÷ 8", answer: "8", difficulty: "Medium" },
+  { question: "72 ÷ 8", answer: "9", difficulty: "Medium" },
+  { question: "80 ÷ 8", answer: "10", difficulty: "Medium" },
+  
+  { question: "81 ÷ 9", answer: "9", difficulty: "Medium" },
+  { question: "90 ÷ 9", answer: "10", difficulty: "Medium" },
+  
+  // Hard Division (larger numbers)
+  { question: "100 ÷ 10", answer: "10", difficulty: "Hard" },
+  { question: "120 ÷ 10", answer: "12", difficulty: "Hard" },
+  { question: "144 ÷ 12", answer: "12", difficulty: "Hard" },
+  { question: "132 ÷ 11", answer: "12", difficulty: "Hard" },
+  { question: "96 ÷ 8", answer: "12", difficulty: "Hard" },
+  { question: "84 ÷ 7", answer: "12", difficulty: "Hard" },
+  { question: "108 ÷ 9", answer: "12", difficulty: "Hard" },
+  { question: "156 ÷ 13", answer: "12", difficulty: "Hard" },
+];
+
+export default function DivisionFlashcards() {
+  const [cards, setCards] = useState(divisionProblems);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [score, setScore] = useState(0);
+  const [answered, setAnswered] = useState(0);
+  const [userAnswer, setUserAnswer] = useState('');
+  const [showResult, setShowResult] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
+  const [difficulty, setDifficulty] = useState('All');
+
+  useEffect(() => {
+    if (difficulty === 'All') {
+      setCards(divisionProblems);
+    } else {
+      setCards(divisionProblems.filter(p => p.difficulty === difficulty));
+    }
+    setCurrentIndex(0);
+    setIsFlipped(false);
+  }, [difficulty]);
+
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
+  };
+
+  const handleNext = () => {
+    setIsFlipped(false);
+    setShowResult(false);
+    setUserAnswer('');
+    setCurrentIndex((prev) => (prev + 1) % cards.length);
+  };
+
+  const handlePrevious = () => {
+    setIsFlipped(false);
+    setShowResult(false);
+    setUserAnswer('');
+    setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
+  };
+
+  const handleShuffle = () => {
+    const shuffled = [...cards].sort(() => Math.random() - 0.5);
+    setCards(shuffled);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setShowResult(false);
+    setUserAnswer('');
+  };
+
+  const handleReset = () => {
+    setCards(divisionProblems);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setScore(0);
+    setAnswered(0);
+    setDifficulty('All');
+    setShowResult(false);
+    setUserAnswer('');
+  };
+
+  const checkAnswer = () => {
+    const correct = userAnswer.trim() === cards[currentIndex].answer;
+    setIsCorrect(correct);
+    setShowResult(true);
+    setAnswered(prev => prev + 1);
+    if (correct) {
+      setScore(prev => prev + 1);
+    }
+  };
+
+  const currentCard = cards[currentIndex];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-6">
+          <h1 className="text-4xl font-bold text-purple-800 mb-2">
+            ➗ Division Practice
+          </h1>
+          <p className="text-purple-600 font-semibold">Standard 4</p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-lg p-4 mb-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Trophy className="text-yellow-500" size={24} />
+              <span className="font-bold text-lg">{score}/{answered}</span>
+            </div>
+            <div className="text-sm text-gray-600">
+              Card {currentIndex + 1} of {cards.length}
+            </div>
+            <select
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value)}
+              className="border-2 border-purple-300 rounded-lg px-3 py-1 font-semibold text-sm"
+            >
+              <option value="All">All Levels</option>
+              <option value="Easy">Easy</option>
+              <option value="Medium">Medium</option>
+              <option value="Hard">Hard</option>
+            </select>
+          </div>
+        </div>
+
+        <div 
+          className="relative h-80 mb-6 cursor-pointer"
+          onClick={!showResult ? handleFlip : undefined}
+        >
+          <div className={`absolute w-full h-full transition-transform duration-500 ${
+            isFlipped ? 'scale-95 opacity-0' : 'scale-100 opacity-100'
+          }`}>
+            <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl shadow-2xl flex flex-col items-center justify-center p-8 border-4 border-purple-600">
+              <div className="text-purple-100 text-sm mb-4 font-semibold">
+                {currentCard.difficulty}
+              </div>
+              <div className="text-7xl font-bold text-white mb-8">
+                {currentCard.question}
+              </div>
+              <div className="text-purple-100 text-lg">= ?</div>
+              {!showResult && (
+                <div className="mt-8 text-white text-sm">Tap to see answer or type below</div>
+              )}
+            </div>
+          </div>
+          
+          <div className={`absolute w-full h-full transition-transform duration-500 ${
+            isFlipped ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+          }`}>
+            <div className="w-full h-full bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl shadow-2xl flex flex-col items-center justify-center p-8 border-4 border-green-700">
+              <div className="text-green-100 text-sm mb-4">ANSWER</div>
+              <div className="text-8xl font-bold text-white mb-4">
+                {currentCard.answer}
+              </div>
+              <div className="text-2xl text-green-100">
+                {currentCard.question} = {currentCard.answer}
+              </div>
+              <div className="mt-8 text-white text-sm">Tap to flip back</div>
+            </div>
+          </div>
+        </div>
+
+        {!showResult ? (
+          <div className="mb-6">
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={userAnswer}
+                onChange={(e) => setUserAnswer(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && userAnswer && checkAnswer()}
+                placeholder="Type your answer"
+                className="flex-1 border-4 border-purple-300 rounded-xl px-6 py-4 text-3xl font-bold text-center focus:border-purple-500 focus:outline-none"
+                autoFocus
+              />
+              <button
+                onClick={checkAnswer}
+                disabled={!userAnswer}
+                className="bg-purple-500 hover:bg-purple-600 disabled:bg-gray-300 text-white px-8 py-4 rounded-xl shadow-lg font-bold text-xl transition-all"
+              >
+                Check
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className={`mb-6 p-6 rounded-2xl text-center ${
+            isCorrect ? 'bg-green-100 border-4 border-green-500' : 'bg-red-100 border-4 border-red-500'
+          }`}>
+            <div className="text-4xl mb-2">
+              {isCorrect ? '🎉' : '💪'}
+            </div>
+            <div className={`text-2xl font-bold mb-2 ${
+              isCorrect ? 'text-green-700' : 'text-red-700'
+            }`}>
+              {isCorrect ? 'Correct!' : 'Not quite!'}
+            </div>
+            <div className="text-xl font-semibold text-gray-700">
+              {currentCard.question} = {currentCard.answer}
+            </div>
+            {!isCorrect && (
+              <div className="mt-2 text-gray-600">
+                Your answer: {userAnswer}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex gap-3 mb-4">
+          <button
+            onClick={handlePrevious}
+            className="flex-1 bg-white hover:bg-gray-50 text-gray-700 py-4 px-4 rounded-xl shadow-md transition-all font-bold text-lg"
+          >
+            ← Previous
+          </button>
+          <button
+            onClick={handleNext}
+            className="flex-1 bg-white hover:bg-gray-50 text-gray-700 py-4 px-4 rounded-xl shadow-md transition-all font-bold text-lg"
+          >
+            Next →
+          </button>
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={handleShuffle}
+            className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-3 px-4 rounded-xl shadow-md transition-all font-bold"
+          >
+            🔀 Shuffle
+          </button>
+          <button
+            onClick={handleReset}
+            className="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-3 px-4 rounded-xl shadow-md transition-all font-bold"
+          >
+            🔄 Reset
+          </button>
+        </div>
+
+        <div className="mt-6 text-center">
+          <div className="text-sm text-gray-600 mb-2">
+            Keep practicing! 🌟
+          </div>
+          {answered > 0 && (
+            <div className="text-lg font-bold text-purple-700">
+              Accuracy: {Math.round((score / answered) * 100)}%
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
